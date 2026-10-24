@@ -74,7 +74,10 @@ fun ReadingTrackerScreen() {
                 isError = !isTitleValid,
                 supportingText = {
                     if (!isTitleValid) {
-                        Text("Judul minimal harus 3 karakter", color = MaterialTheme.colorScheme.error)
+                        Text(
+                            "Judul minimal harus 3 karakter",
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -147,6 +150,7 @@ fun ReadingTrackerScreen() {
 
 
             // Pesan Sukses
+            // Pesan Sukses (Diperbarui untuk menampilkan review jika ada)
             if (showSuccessMessage) {
                 Card(
                     colors = CardDefaults.cardColors(
@@ -154,33 +158,20 @@ fun ReadingTrackerScreen() {
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Buku \"$bookTitle\" ($genre) karya $author berhasil disimpan!",
-                        modifier = Modifier.padding(12.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Tombol Reset & Simpan
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedButton(
-                    onClick = { resetForm() },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Reset")
-                }
-
-                Button(
-                    onClick = { showSuccessMessage = true },
-                    enabled = isFormValid,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Simpan Buku")
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = "Buku \"$bookTitle\" ($genre) karya $author berhasil disimpan!",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        if (reviewNotes.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Catatan: \"$reviewNotes\"",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
                 }
             }
         }
