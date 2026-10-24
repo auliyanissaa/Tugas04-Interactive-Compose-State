@@ -16,6 +16,7 @@ Aplikasi Android sederhana berbasis Jetpack Compose yang dibuat untuk memenuhi T
 
 # Struktur State
 State | Tipe Data | Owner | Dipakai Oleh
+---|---|---|---
 bookTitle | String | ReadingTrackerScreen | OutlinedTextField (Judul), Validasi
 author | String | ReadingTrackerScreen | OutlinedTextField (Penulis), Validasi
 rating | Int | ReadingTrackerScreen | RatingCounter (State Hoisting)
