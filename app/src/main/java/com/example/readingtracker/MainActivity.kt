@@ -3,45 +3,175 @@ package com.example.readingtracker
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.readingtracker.ui.theme.ReadingTrackerTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             ReadingTrackerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    ReadingTrackerScreen()
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun ReadingTrackerScreen() {
+    // State Form
+    var bookTitle by rememberSaveable { mutableStateOf("") }
+    var author by rememberSaveable { mutableStateOf("") }
+    var genre by rememberSaveable { mutableStateOf("Fiksi") }
+    var rating by rememberSaveable { mutableStateOf(1) }
+    var isCompleted by rememberSaveable { mutableStateOf(false) }
+    var showSuccessMessage by rememberSaveable { mutableStateOf(false) }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ReadingTrackerTheme {
-        Greeting("Android")
+    // Logika Validasi (Judul min 3 karakter & Penulis tidak boleh kosong)
+    val isTitleValid = bookTitle.length >= 3 || bookTitle.isEmpty()
+    val isFormValid = bookTitle.length >= 3 && author.isNotBlank()
+
+    fun resetForm() {
+        bookTitle = ""
+        author = ""
+        genre = "Fiksi"
+        rating = 1
+        isCompleted = false
+        showSuccessMessage = false
+    }
+
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("Reading Tracker - Tugas Compose") }) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Input Judul dengan Pesan Error Validasi
+            OutlinedTextField(
+                value = bookTitle,
+                onValueChange = { bookTitle = it },
+                label = { Text("Judul Buku") },
+                isError = !isTitleValid,
+                supportingText = {
+                    if (!isTitleValid) {
+                        Text("Judul minimal harus 3 karakter", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Input Penulis
+            OutlinedTextField(
+                value = author,
+                onValueChange = { author = it },
+                label = { Text("Nama Penulis") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Pilihan Genre
+            Text("Genre Buku:", style = MaterialTheme.typography.bodyLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Fiksi", "Non-Fiksi", "Teknologi").forEach { item ->
+                    FilterChip(
+                        selected = genre == item,
+                        onClick = { genre = item },
+                        label = { Text(item) }
+                    )
+                }
+            }
+
+            // Rating
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Rating Buku:", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    onClick = { if (rating > 1) rating-- },
+                    enabled = rating > 1
+                ) {
+                    Icon(Icons.Default.Remove, contentDescription = "Kurang Rating")
+                }
+                Text("$rating / 5", style = MaterialTheme.typography.titleMedium)
+                IconButton(
+                    onClick = { if (rating < 5) rating++ },
+                    enabled = rating < 5
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Tambah Rating")
+                }
+            }
+
+            // Switch Selesai
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Sudah Selesai Dibaca?")
+                Switch(
+                    checked = isCompleted,
+                    onCheckedChange = { isCompleted = it }
+                )
+            }
+
+            // Pesan Sukses
+            if (showSuccessMessage) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Buku \"$bookTitle\" ($genre) karya $author berhasil disimpan!",
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Tombol Reset & Simpan
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedButton(
+                    onClick = { resetForm() },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Reset")
+                }
+
+                Button(
+                    onClick = { showSuccessMessage = true },
+                    enabled = isFormValid,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Simpan Buku")
+                }
+            }
+        }
     }
 }
