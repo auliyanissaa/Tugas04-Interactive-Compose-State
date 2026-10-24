@@ -41,6 +41,7 @@ fun ReadingTrackerScreen() {
     var rating by rememberSaveable { mutableStateOf(1) }
     var isCompleted by rememberSaveable { mutableStateOf(false) }
     var showSuccessMessage by rememberSaveable { mutableStateOf(false) }
+    var reviewNotes by rememberSaveable { mutableStateOf("") }
 
     // Logika Validasi (Judul min 3 karakter & Penulis tidak boleh kosong)
     val isTitleValid = bookTitle.length >= 3 || bookTitle.isEmpty()
@@ -133,7 +134,17 @@ fun ReadingTrackerScreen() {
                     checked = isCompleted,
                     onCheckedChange = { isCompleted = it }
                 )
-            }
+            } // <--- Tutup Row di sini!
+
+// OutlinedTextField ditaruh DI LUAR Row
+            OutlinedTextField(
+                value = reviewNotes,
+                onValueChange = { reviewNotes = it },
+                label = { Text("Catatan / Review Singkat") },
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 3
+            )
+
 
             // Pesan Sukses
             if (showSuccessMessage) {
