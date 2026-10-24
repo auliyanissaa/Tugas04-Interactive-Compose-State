@@ -177,3 +177,12 @@ fun ReadingTrackerScreen() {
         }
     }
 }
+// Footer Tugas
+Text(
+    text = "Jetpack Compose State Challenge • Tugas 04",
+    style = MaterialTheme.typography.labelSmall,
+    color = MaterialTheme.colorScheme.outline,
+    modifier = Modifier.align(Alignment.CenterHorizontally)
+)
+
+Spacer(modifier = Modifier.weight(1f))
